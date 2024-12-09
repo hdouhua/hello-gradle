@@ -1,0 +1,210 @@
+//
+// Gradle 构建时会为每一个 build.gradle 创建一个对应的 Project 对象，可以使用 Project 接口中的方法。
+//
+
+task helloWorld {
+    doFirst {
+        println "doFirst"
+    }
+
+    doLast {
+        println "doLast"
+    }
+    
+    println "Hello World!"
+}
+
+// allprojects {
+//     repositories {
+//         mavenCentral()
+//     }
+// }
+// subprojects {
+//     apply plugin: 'groovy'
+// }
+
+def add(a, b){
+    return a + b
+}
+
+def add2(a, b){
+    a + b
+}
+
+class Person {
+    def name
+    private def country
+    def age
+  
+    def setNationality(value){
+        this.country = value
+    }
+    def getNationality(){
+        return country
+    }
+
+    String toString() { "$name is $age years old" }
+}
+
+def concat2 = {String... it -> it.join('') }
+
+task learnGroovy {
+
+    doFirst {
+    // 2
+        def num1 = 1
+        def num2 = 2
+        def result = add(num1, num2)
+        println "result: " + result
+
+    // 3
+        def result2 = add2 3, 4
+        println "result2: " + result2
+
+    // 4
+        def world = 'world'
+        def str1 = 'hello ${world}!'
+        def str2 = "hello ${world}!"
+        def str3 = '''hello
+        &{world}!'''
+        println "str1: " + str1
+        println "str2: " + str2
+        println "str3: " + str3
+
+    // 5
+        def person = new Person()
+        person.name = 'hdouhua'
+        println "name: " + person.name
+        person.nationality = "Chinese"
+        println "country: " + person.country
+        println "nationality: " + person.getNationality()
+
+    // 6
+        def per = new Person()
+        // 定义一个闭包
+        def closure = {
+            name = 'hdouhua'
+            age = 21
+            country = 'Chinese'
+
+            println "default it: " + it
+        }
+        // 把闭包委托给 per 对象执行
+        closure.delegate = per
+        // 直接调用闭包执行，或者调用 closure.call() 执行
+        // closure()
+        closure.call(per)
+
+        // 以上代码把闭包委托给 per 对象执行，所以闭包执行时就处于 per 对象上下文
+        // =>闭包可以访问到 per 对象中的字段
+        println "name: " + per.name
+        println "age: " + per.age
+
+        assert concat2('abc', 'def') == 'abcdef'
+    }
+
+}
+
+// create task
+task task1 {
+    doFirst {
+        println 'one'
+    }
+
+    doLast {
+        println 'two'
+    }
+}
+
+// 
+def t = task task2
+t.doFirst {
+    println 'task2 doFirst'
+}
+t.doLast {
+    println 'task2 doLast'
+}
+
+// 
+tasks.create(name : 'task3') {
+    doFirst {
+        println 'task3 doFirst'
+    }
+    doLast {
+        println 'task3 doLast'
+    }
+}
+
+//
+task task4a {
+    group = "MyGroup-task4a"
+    description = "it is my first group"
+
+    doLast {
+        println "group: ${group}"
+        println "description: ${description}"
+    }
+}
+// {}
+task task4b {
+    doLast {
+        println "group: ${group}"
+        println "description: ${description}"
+    }
+}
+task4b {
+    group = "MyGroup-task4b"
+    description = "this is my first group"
+}
+// .[property]
+task task4c {
+    doLast {
+        println "group: ${group}"
+        println "description: ${description}"
+    }
+}
+task4c.group = "MyGroup-task4c"
+task4c.description = "my first group"
+// .configure
+task task4d {
+    doLast {
+        println "group: ${group}"
+        println "description: ${description}"
+    }
+}
+task4d.configure {
+    group = "MyGroup-task4d"
+    description = "my first group"
+}
+
+// 通过 Task 的 dependsOn 属性指定 Task 之间的依赖关系
+task task5(dependsOn: task4d) {
+    doLast {
+        println 'this is task5'
+    }
+}
+// 
+task4d.dependsOn task4c
+
+
+// define my own Task
+class MyTask extends DefaultTask {
+    @Input
+    def message = 'hello world from MyTask'
+
+    @TaskAction
+    def println1() {
+        println "println1: ${message}"
+    }
+
+    @TaskAction
+    def println2() {
+        println "println2: ${message}"
+    }
+}
+task myTask1(type: MyTask) {
+    message = 'my customized task type'
+}
+task myTask2(type: MyTask){
+}
+myTask2.message = "this is a test"

@@ -1,0 +1,59 @@
+// 
+// https://docs.gradle.org/current/javadoc/org/gradle/BuildListener.html
+// 
+
+rootProject.name = "test project c01"
+
+// 构建的生命周期
+
+this.gradle.beforeSettings {
+    println "Gradle 构建开始" + it
+}
+
+// init 开始
+this.gradle.settingsEvaluated {
+    println "settings.gradle 解析完成"
+}
+this.gradle.projectsLoaded {
+    println "所有项目加载完成"
+}
+// init 结束
+
+
+// configure 开始
+// 每一个 Project 构建之前被调用
+this.gradle.beforeProject {project ->
+    println "项目 ${project.name} 构建开始"
+}
+// 每一个 Project 构建完成被调用
+this.gradle.afterProject {project ->
+    println "项目 ${project.name} 构建完成"
+}
+
+this.gradle.projectsEvaluated {
+    println "所有项目构建完成"
+}
+this.gradle.taskGraph.whenReady {
+    println("Task 图构建完成")
+}
+// configure 结束
+
+
+// execute 开始
+// 每一个 Task 开始执行时会调用这个方法
+this.gradle.taskGraph.beforeTask {task ->
+    println("Task ${task.name} 执行开始")
+}
+// 每一个 Task 执行结束时会调用这个方法
+this.gradle.taskGraph.afterTask {task ->
+    println("Task ${task.name} 执行完成")
+}
+// execute 结束
+
+
+// @Deprecated
+this.gradle.buildFinished {
+    println "Gradle 构建结束"
+}
+
+// 构建的生命周期
